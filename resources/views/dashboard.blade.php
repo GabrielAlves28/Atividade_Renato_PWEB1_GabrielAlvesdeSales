@@ -73,9 +73,13 @@
                     <tbody>
                         @foreach($faturas as $f)
                         @php
-                            $msg = "Olá, {$f->consumidor->nome}! Segue o consumo de {$f->leitura->mes_referencia}/{$f->leitura->ano_referencia}:\n\nLeitura atual: {$f->leitura->leitura_atual} m³\nMedidor: {$f->consumidor->numero_medidor}\nLeitura anterior: {$f->leitura->leitura_anterior} m³\nConsumo: {$f->leitura->consumo_m3} m³\n(".($f->leitura->consumo_m3 * 1000)." litros)\n\nValor da fatura: R$ {$f->valor_total}\n\nAtt, Associação Comunitária";
-                            $link = "https://wa.me/55{$f->consumidor->telefone}?text=" . urlencode($msg);
-                        @endphp
+                               $msg = "Olá, {$f->consumidor->nome}! Segue o consumo de {$f->leitura->mes_referencia}/{$f->leitura->ano_referencia}:\n\nLeitura atual: {$f->leitura->leitura_atual} m³\nMedidor: {$f->consumidor->numero_medidor}\nLeitura anterior: {$f->leitura->leitura_anterior} m³\nConsumo: {$f->leitura->consumo_m3} m³\n(".($f->leitura->consumo_m3 * 1000)." litros)\n\nValor da fatura: R$ {$f->valor_total}\n\nAtt, Associação Comunitária";
+
+                               // Limpa o telefone, deixando APENAS os números
+                               $telefoneLimpo = preg_replace('/[^0-9]/', '', $f->consumidor->telefone);
+
+                               $link = "https://wa.me/55{$telefoneLimpo}?text=" . urlencode($msg);
+                           @endphp
                         <tr>
                             <td>{{ $f->consumidor->nome }}</td>
                             <td>{{ $f->leitura->mes_referencia }}/{{ $f->leitura->ano_referencia }}</td>
