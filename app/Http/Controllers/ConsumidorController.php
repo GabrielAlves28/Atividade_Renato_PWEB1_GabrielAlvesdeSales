@@ -28,7 +28,13 @@ class ConsumidorController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        use App\Models\Consumidor;
+        use Illuminate\Http\Request;
+
+        public function store(Request $request) {
+            Consumidor::create($request->all());
+            return back()->with('success', 'Consumidor cadastrado!');
+        }
     }
 
     /**

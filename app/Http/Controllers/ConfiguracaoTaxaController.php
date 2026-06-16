@@ -52,7 +52,14 @@ class ConfiguracaoTaxaController extends Controller
      */
     public function update(Request $request, ConfiguracaoTaxa $configuracaoTaxa)
     {
-        //
+       use App\Models\ConfiguracaoTaxa;
+       use Illuminate\Http\Request;
+
+       public function update(Request $request) {
+           $taxa = ConfiguracaoTaxa::first();
+           $taxa->update($request->all());
+           return back()->with('success', 'Taxa atualizada!');
+       }
     }
 
     /**

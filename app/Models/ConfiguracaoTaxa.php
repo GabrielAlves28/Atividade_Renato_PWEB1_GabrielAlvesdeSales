@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class ConfiguracaoTaxa extends Model
 {
-    //
+    protected $guarded = [];
 }
