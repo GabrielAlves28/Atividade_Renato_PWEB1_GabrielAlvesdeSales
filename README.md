@@ -1,3 +1,6 @@
+Dupla: Gabriel Alves de Sales e William Axel
+        
+
 # Sistema de Controle de Consumo de Água
 
 Sistema web simples desenvolvido para uma associação comunitária gerenciar o abastecimento de água, calcular o consumo mensal dos medidores e gerar faturas automáticas com link de cobrança via WhatsApp.
