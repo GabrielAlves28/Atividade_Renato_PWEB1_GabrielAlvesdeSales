@@ -4,11 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Models\Leitura;
 use App\Models\Fatura;
-use App\Models\ConfiguracaoTaxa;
+use App\Services\FaturaCalculatorService;
 use Illuminate\Http\Request;
 
 class LeituraController extends Controller
 {
+    /**
+     * Injeção de Dependência: o serviço de cálculo é fornecido pelo container do Laravel.
+     * Aplica o princípio de Dependency Inversion (SOLID).
+     */
+    public function __construct(
+        protected FaturaCalculatorService $faturaCalculator
+    ) {}
+
     public function store(Request $request)
     {
         $request->validate([
@@ -35,12 +43,8 @@ class LeituraController extends Controller
             'consumo_m3' => $consumoM3,
         ]);
 
-        $taxa = ConfiguracaoTaxa::first();
-        $valorTotal = $taxa->taxa_fixa;
-
-        if ($consumoM3 > 10) {
-            $valorTotal += (($consumoM3 - 10) * $taxa->valor_excedente);
-        }
+        // Cálculo delegado ao Service — sem "new" manual (Dependency Inversion)
+        $valorTotal = $this->faturaCalculator->calcular($consumoM3);
 
         Fatura::create([
             'consumidor_id' => $request->consumidor_id,
