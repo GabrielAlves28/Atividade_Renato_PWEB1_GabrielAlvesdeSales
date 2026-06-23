@@ -6,12 +6,24 @@
 </head>
 <body class="p-4">
     <div class="container">
-        <h1 class="mb-4">Associação Comunitária - Água</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">Associação Comunitária - Água</h1>
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-muted">
+                    Olá, <strong>{{ auth()->user()->name }}</strong> ({{ ucfirst(auth()->user()->role) }})
+                </span>
+                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Sair</button>
+                </form>
+            </div>
+        </div>
 
         @if(session('error')) <div class="alert alert-danger">{{ session('error') }}</div> @endif
         @if(session('success')) <div class="alert alert-success">{{ session('success') }}</div> @endif
 
         <div class="row">
+            @if(auth()->user()->isAdmin())
             <div class="col-md-6">
                 <div class="card mb-4">
                     <div class="card-header">Cadastrar Consumidor</div>
@@ -39,8 +51,9 @@
                     </div>
                 </div>
             </div>
+            @endif
 
-            <div class="col-md-6">
+            <div class="{{ auth()->user()->isAdmin() ? 'col-md-6' : 'col-md-8 mx-auto' }}">
                 <div class="card mb-4">
                     <div class="card-header">Registrar Leitura Mensal</div>
                     <div class="card-body">
@@ -65,6 +78,7 @@
             </div>
         </div>
 
+        @if(auth()->user()->isAdmin())
         <div class="card">
             <div class="card-header">Faturas Geradas</div>
             <div class="card-body">
@@ -100,6 +114,7 @@
                 </table>
             </div>
         </div>
+        @endif
     </div>
 </body>
 </html>
