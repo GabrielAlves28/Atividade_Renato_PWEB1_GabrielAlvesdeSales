@@ -1,7 +1,6 @@
-# ============================================================
+
 # Dockerfile – Sistema de Controle de Consumo de Água
-# Imagem base: php:8.2-fpm (PHP-FPM para integração com Nginx)
-# ============================================================
+
 
 # 1. Define a imagem base oficial do PHP 8.2 com FPM (FastCGI Process Manager)
 #    O FPM é necessário para que o Nginx passe as requisições PHP ao container.
