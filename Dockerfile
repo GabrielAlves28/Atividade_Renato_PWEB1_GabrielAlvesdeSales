@@ -26,6 +26,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+
 # 3. Instala as extensões PHP essenciais para o Laravel:
 #    - pdo_mysql: conexão com banco de dados MySQL via PDO
 #    - mbstring: manipulação de strings multibyte (internacionalização)
@@ -58,10 +59,15 @@ RUN composer install --no-dev --optimize-autoloader
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
     && chmod -R 775 /var/www/storage /var/www/bootstrap/cache
 
-# 9. Expõe a porta 9000, que é a porta padrão do PHP-FPM.
-#    O Nginx se comunicará com este container através desta porta.
+# 9. Copia e configura o script de entrypoint que roda migrations
+#    automaticamente antes de iniciar o PHP-FPM.
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# 10. Expõe a porta 9000, que é a porta padrão do PHP-FPM.
+#     O Nginx se comunicará com este container através desta porta.
 EXPOSE 9000
 
-# 10. Define o comando de inicialização do container: inicia o PHP-FPM
-#     que ficará aguardando requisições do Nginx para processá-las.
-CMD ["php-fpm"]
+# 11. Define o entrypoint: roda migrations e depois inicia o PHP-FPM.
+#     O CMD é substituído pelo entrypoint.sh que chama 'exec php-fpm' no final.
+CMD ["/usr/local/bin/entrypoint.sh"]
