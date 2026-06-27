@@ -1,0 +1,93 @@
+version: '3.8'
+
+# ============================================================
+# Docker Compose – Sistema de Controle de Consumo de Água
+# Orquestra 3 serviços: app (PHP-FPM), webserver (Nginx), db (MySQL)
+# ============================================================
+
+services:
+
+  # ----------------------------------------------------------
+  # Serviço APP: Container da aplicação Laravel (PHP-FPM)
+  # ----------------------------------------------------------
+  app:
+    build:
+      context: .          # Constrói a imagem a partir do Dockerfile na raiz
+    container_name: app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - .:/var/www         # Monta o código-fonte para facilitar desenvolvimento
+    environment:
+      - APP_NAME=ControleAgua
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost:8000
+      - DB_CONNECTION=mysql
+      - DB_HOST=db          # 'db' é o nome do serviço MySQL abaixo
+      - DB_PORT=3306
+      - DB_DATABASE=agua_db
+      - DB_USERNAME=root
+      - DB_PASSWORD=root
+      - SESSION_DRIVER=file
+      - CACHE_STORE=file
+      - QUEUE_CONNECTION=sync
+    depends_on:
+      db:
+        condition: service_healthy   # Aguarda o MySQL estar saudável antes de iniciar
+    networks:
+      - app-network
+
+  # ----------------------------------------------------------
+  # Serviço WEBSERVER: Nginx como proxy reverso para o PHP-FPM
+  # ----------------------------------------------------------
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    ports:
+      - "8000:80"          # Porta 8000 da máquina → porta 80 do container Nginx
+    volumes:
+      - .:/var/www                                    # Código-fonte (para arquivos estáticos)
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf  # Config do Nginx
+    depends_on:
+      - app
+    networks:
+      - app-network
+
+  # ----------------------------------------------------------
+  # Serviço DB: Banco de dados MySQL 8.0
+  # ----------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: agua_db
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    volumes:
+      - db_data:/var/lib/mysql   # Volume nomeado para persistência dos dados
+    ports:
+      - "3307:3306"              # Porta 3307 local (evita conflito com MySQL local)
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+# ----------------------------------------------------------
+# Volumes nomeados (persistência de dados entre reinicializações)
+# ----------------------------------------------------------
+volumes:
+  db_data:
+    driver: local
+
+# ----------------------------------------------------------
+# Rede interna para comunicação entre os containers
+# ----------------------------------------------------------
+networks:
+  app-network:
+    driver: bridge
