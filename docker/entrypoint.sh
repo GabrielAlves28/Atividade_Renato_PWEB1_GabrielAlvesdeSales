@@ -1,7 +1,7 @@
 #!/bin/sh
 # =============================================================
 # entrypoint.sh - Script de inicialização do container Laravel
-# Executa automaticamente as migrations antes de subir o PHP-FPM
+# Executa automaticamente as migrations antes de iniciar o servidor
 # =============================================================
 
 echo ">>> Aguardando banco de dados MySQL ficar disponível..."
@@ -10,7 +10,7 @@ echo ">>> Aguardando banco de dados MySQL ficar disponível..."
 until php -r "
 try {
     \$pdo = new PDO(
-        'mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT', '3306'),
+        'mysql:host=' . getenv('DB_HOST') . ';port=' . (getenv('DB_PORT') ?: '3306'),
         getenv('DB_USERNAME'),
         getenv('DB_PASSWORD')
     );
@@ -35,5 +35,7 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-echo ">>> Iniciando PHP-FPM..."
-exec php-fpm
+# O Railway injeta a variavel PORT automaticamente
+PORT=${PORT:-8080}
+echo ">>> Iniciando servidor Laravel na porta $PORT..."
+exec php artisan serve --host=0.0.0.0 --port=$PORT

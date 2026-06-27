@@ -64,9 +64,8 @@ RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# 10. Expõe a porta 9000, que é a porta padrão do PHP-FPM.
-#     O Nginx se comunicará com este container através desta porta.
-EXPOSE 9000
+# 10. Expõe a porta 8080 (porta HTTP padrão do Railway / php artisan serve).
+EXPOSE 8080
 
 # 11. Define o entrypoint: roda migrations e depois inicia o PHP-FPM.
 #     O CMD é substituído pelo entrypoint.sh que chama 'exec php-fpm' no final.
